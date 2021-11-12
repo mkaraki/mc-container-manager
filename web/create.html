@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Minecraft Container | Minecraft Container Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+</head>
+
+<body class="m-3">
+    <form id="createForm" onsubmit="submitCreate(); return false;">
+        <div class="mb-3">
+            <label for="name" class="form-label">Container Name</label>
+            <input type="text" class="form-control" id="name" aria-describedby="nameHelp" name="name">
+            <div id="nameHelp" class="form-text">You can use a-z, 0-9 and '_'.</div>
+        </div>
+
+        <label for="port" class="form-label">Port</label>
+        <div class="row">
+            <div class="col">
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" id="port" name="port" min="1" max="65535">
+                </div>
+
+            </div>
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        Use rcon:&nbsp;
+                        <input class="form-check-input" type="checkbox"
+                            onchange="document.querySelector('input[name=rconport]').disabled = !this.checked;">
+                    </div>
+                    <input type="number" class="form-control" name="rconport" disabled min="1" max="65535">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label class="form-label">Version</label>
+                <div class="form-group mb-3">
+                    <input type="email" class="form-control" name="env-VERSION" value="" placeholder="LATEST"
+                        aria-describedby="versionHelp">
+                    <small id="versionHelp" class="form-text text-muted">
+                        You can type specific version, such as <code>1.7.10</code>
+                        or release level, such as <code>LATEST</code> or <code>SNAPSHOT</code>.
+                        <br />
+                    </small>
+                </div>
+            </div>
+            <div class="col">
+                <label class="form-label">Server Type</label>
+                <select class="form-select" aria-label="Server Type" name="env-TYPE" onchange="setopt(this.value);">
+                    <option value="VANILLA" selected>Vanilla Minecraft Server</option>
+                    <option value="FORGE">Forge</option>
+                    <option value="FTBA">Feed the Beast (FTB) Modpack</option>
+                    <option value="SPIGOT">Spigot</option>
+                    <option value="BUKKIT">Bukkit</option>
+                    <option value="PAPER">Paper</option>
+                    <option value="AIRPLANE">Airplane</option>
+                    <option value="PURPUR">Purpur</option>
+                    <option value="MAGMA">Magma</option>
+                    <option value="MOHIST">Mohist</option>
+                    <option value="CATSERVER">Catserver</option>
+                    <option value="CANYON">Canyon</option>
+                    <option value="SPONGEVANILLA">SpongeVanilla</option>
+                    <option value="FABRIC">Fabric</option>
+                    <option value="LIMBO">Limbo</option>
+                    <option value="CRUCIBLE">Crucible</option>
+                </select>
+
+            </div>
+        </div>
+
+        <div id="t-ftb" class="d-none mb-3">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-ftb-id">FTB Modpack ID</span>
+                </div>
+                <input type="text" class="form-control" placeholder="Auto" aria-label="FTB Modpack ID"
+                    aria-describedby="t-ftb-id" name="env-FTB_MODPACK_ID">
+            </div>
+            <small class="text-muted">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#running-a-server-with-a-feed-the-beast-modpack">this
+                    article</a>.</small>
+        </div>
+
+        <div id="t-forge" class="d-none mb-3">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-forge-version">Forge Version</span>
+                </div>
+                <input type="text" class="form-control" placeholder="Auto" aria-label="Forge Version"
+                    aria-describedby="t-forge-version" name="env-FORGEVERSION">
+            </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-forge-url">Forge Installer URL</span>
+                </div>
+                <input type="url" class="form-control" placeholder="Auto" aria-label="Forge Installer URL"
+                    aria-describedby="t-forge-url" name="env-FORGE_INSTALLER_URL">
+            </div>
+            <small class="text-muted">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#running-a-forge-server">this
+                    article</a>.</small>
+        </div>
+
+        <div id="t-spiget" class="d-none mb-3">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-spiget-autodl">Auto-download Plugins</span>
+                </div>
+                <input type="text" class="form-control" placeholder="9089,34315" aria-label="Auto-download Plugins"
+                    aria-describedby="t-spiget-autodl" name="env-SPIGET_RESOURCES">
+            </div>
+            <small class="text-muted">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#auto-downloading-spigotmcbukkitpapermc-plugins">this
+                    article</a>.</small>
+        </div>
+
+        <div id="t-modpack" class="d-none mb-3">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-modpack-url">Modpack URL</span>
+                </div>
+                <input type="url" class="form-control" placeholder="http://www.example.com/mods/modpack.zip"
+                    aria-label="Modpack URL" aria-describedby="t-modpack-url" name="env-MODPACK">
+            </div>
+            <small class="text-muted">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#downloadable-modplugin-pack-for-forge-bukkit-and-spigot-servers">this
+                    article</a>.</small>
+        </div>
+
+        <div id="t-paper" class="d-none mb-3">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-paper-build">Paper Build</span>
+                </div>
+                <input type="text" class="form-control" placeholder="Auto" aria-label="Paper Build"
+                    aria-describedby="t-paper-build" name="env-PAPERBUILD">
+            </div>
+            <small class="text-muted">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#running-a-paper-server">this
+                    article</a>.</small>
+        </div>
+
+        <div class="mb-3">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-world-url">World URL</span>
+                </div>
+                <input type="url" class="form-control" placeholder="http://www.example.com/worlds/MySave.zip"
+                    aria-label="World URL" aria-describedby="t-world-url" name="env-WORLD">
+            </div>
+            <small class="text-muted">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#downloadable-world">this
+                    article</a>.</small>
+        </div>
+
+        <div class="mb-3">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="t-motd">MOTD</span>
+                </div>
+                <input type="text" class="form-control" placeholder="A §l§cMinecraft§r §nserver" aria-label="MOTD"
+                    aria-describedby="t-motd" name="env-MOTD">
+            </div>
+            <small class="text-muted">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#message-of-the-day">this
+                    article</a>.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="difficultySelect">Difficulty Select</label>
+            <select class="form-control" id="difficultySelect" name="env-DIFFICULTY">
+                <option value="peaceful">Peaceful</option>
+                <option value="easy" selected>Easy</option>
+                <option value="normal">Normal</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="whitelisted">Whitelisted Players</label>
+            <input type="text" class="form-control" id="whitelisted" aria-describedby="whitelistedHelp"
+                placeholder="user1,user2" name="env-WHITELIST">
+            <small class="form-text text-muted" id="whitelistedHelp">You should see <a
+                    href="https://github.com/itzg/docker-minecraft-server#whitelist-players">this
+                    article</a>.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="opuser">OP/Administrator Players</label>
+            <input type="text" class="form-control" id="opuser" aria-describedby="opHelp" placeholder="user1,user2"
+                name="env-OPS">
+            <small class="form-text text-muted" id="opHelp">
+                Info:
+                <a href="https://github.com/itzg/docker-minecraft-server#opadministrator-players">Op/Administrator
+                    Players configuration</a>.</small>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="opt-cmdblock" value="true"
+                name="env-ENABLE_COMMAND_BLOCK">
+            <label class="form-check-label" for="opt-cmdblock">Enable Command Block</label>
+        </div>
+
+        <!-- 
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="volume" value="y" name="volume">
+                <label class="form-check-label" for="volume">Use volume mount.</label>
+            </div>
+        -->
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="eula" value="TRUE" name="eula">
+            <label class="form-check-label" for="eula">I read Minecraft EULA and agree.</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <script src="script.js"></script>
+    <script>
+        function hideshowChange(nodeid, enordis) {
+            document.getElementById(nodeid).classList.toggle('d-none', !enordis)
+        }
+
+        function setopt(t) {
+            hideshowChange('t-forge', t == 'FORGE');
+            hideshowChange('t-ftb', t == 'FTBA');
+            hideshowChange('t-modpack', t == 'FORGE' || t == 'SPIGOT' || t == 'BUKKIT');
+            hideshowChange('t-spiget', t == 'SPIGOT' || t == 'BUKKIT' || t == 'PAPER');
+            hideshowChange('t-paper', t == 'PAPER');
+        }
+
+        function submitCreate() {
+            fetch(`/api/create.php`, {
+                method: 'POST',
+                body: new FormData(document.getElementById('createForm'))
+            }).then(res => res.json())
+                .then(c => {
+                    if (c['error']) {
+                        console.log(c);
+                        genAlert("Error: " + c['error'], 'danger');
+                        return;
+                    }
+                    location.href = "info.html?" + c['name'];
+                });
+        }
+    </script>
+</body>
+
+</html>

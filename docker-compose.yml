@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    dockerfile: Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /home/mc:/mc
+      #- ./config.php:/var/www/html/_config.php:ro
+    ports:
+      - 25500:80
+
+  filemanager:
+    build: .
+    dockerfile: Dockerfile.tinyfilemanager
+    volumes:
+      - /home/mc:/mc
+    user: 0:0
+    ports:
+      - 25501:80

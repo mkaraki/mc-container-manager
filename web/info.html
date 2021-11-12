@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Information | Minecraft Container Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+</head>
+
+<body class="m-3">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-info" onclick="openFiles();" id="openVolume"
+                        disabled>Browse</button>
+                    <button type="button" class="btn btn-primary" onclick="openTerm();">Terminal</button>
+                    <button type="button" class="btn btn-success" onclick="startContainer();">Start</button>
+                    <button type="button" class="btn btn-warning" onclick="stopContainer();">Stop</button>
+                    <a role="button" class="btn btn-danger" href="delete.html" id="delBtn">Delete</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col m-1">
+                <h3 class="text-left">Server: <span id="svname"></span></h3>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col">
+                <ul class="list-group">
+                    <li class="list-group-item bg-light"><b>Performance</b></li>
+                    <li class="list-group-item"><b>CPU</b>: <span id="cpu"></span></li>
+                    <li class="list-group-item"><b>Memory</b>: <span id="mem"></span></li>
+                    <li class="list-group-item"><b>Network IO</b>: <span id="net"></span></li>
+                    <li class="list-group-item"><b>Block IO</b>: <span id="block"></span></li>
+                </ul>
+                <br />
+                <ul class="list-group" id="ports">
+                    <li class="list-group-item bg-light"><b>Ports</b></li>
+                </ul>
+            </div>
+            <div class="col">
+                <ul class="list-group" id="env">
+                    <li class="list-group-item bg-light"><b>Environment Variables</b></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+        crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script>
+        const srvname = location.search.substring(1);
+
+        document.getElementById('svname').innerText = srvname;
+
+        document.getElementById('delBtn').href = 'delete.html?' + srvname;
+
+        function reqApi(met) {
+            let form = new FormData();
+            form.append('name', srvname);
+            fetch(`/api/${met}.php`, {
+                method: 'POST',
+                body: form
+            }).then(res => res.json())
+                .then(c => {
+                    if (c['result'] === 'ok') {
+                        genAlert('Success', 'success');
+                    }
+                    else {
+                        genAlert('Failed: ' + c['error'], 'danger');
+                    }
+                });
+        }
+
+        function startContainer() {
+            reqApi('start');
+        }
+
+        function stopContainer() {
+            reqApi('stop');
+        }
+
+        function openFiles() {
+            window.open('filemanager.php?name=' + srvname, '_blank').focus();
+        }
+
+        function openTerm() {
+            window.open('mcterminal.html?' + srvname, '_blank').focus();
+        }
+
+        function initFetch() {
+            fetch(`/api/info.php?name=${srvname}`, {
+            }).then(res => res.json())
+                .then(c => {
+                    if (c['error']) {
+                        genAlert("Error: " + c['error'], 'danger');
+                        return;
+                    }
+                    const envlist = document.getElementById('env')
+                    const ports = document.getElementById('ports')
+                    for (let i in c['env']) {
+                        let li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.innerHTML = `<b>${i}</b> = ${c['env'][i]}`;
+                        envlist.appendChild(li);
+                    };
+                    for (let i in c['exposedPorts']) {
+                        for (let j in c['exposedPorts'][i]) {
+                            let li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            let d = c['exposedPorts'][i][j];
+                            li.innerHTML = `<b>${i}</b> <= [${d['ip']}]:${d['port']}`;
+                            ports.appendChild(li);
+                        }
+                    };
+                    document.getElementById('openVolume').disabled = !c['volume'];
+                });
+        }
+
+        function statsUpdate() {
+            fetch(`/api/stats.php?name=${srvname}`, {
+            }).then(res => res.json())
+                .then(c => {
+                    if (c['error']) {
+                        genAlert("Error: " + c['error'], 'danger');
+                        return;
+                    }
+                    document.getElementById('cpu').innerText = (c['cpuperc'] * 100) + '%';
+                    document.getElementById('mem').innerText = `${c['memstr']} (${(c['memperc'] * 100)}%)`;
+                    document.getElementById('net').innerText = c['netio'];
+                    document.getElementById('block').innerText = c['blockio'];
+                });
+        }
+
+        setInterval(statsUpdate, 5000);
+        initFetch();
+        statsUpdate();
+    </script>
+</body>
+
+</html>

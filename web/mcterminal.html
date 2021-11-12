@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal | Minecraft Container Manager</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+
+        html,
+        body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        #menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 23px;
+            background-color: lightgray;
+            padding: 0 5px;
+        }
+
+        .menuitem {
+            margin-right: 50px;
+        }
+
+        #log {
+            font-family: 'Source Code Pro', monospace;
+            width: calc(100% - 15px);
+            overflow-wrap: anywhere;
+            margin-top: 28px;
+            margin-bottom: 28px;
+        }
+
+        #input {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            height: 23px;
+        }
+
+        #input #termCmd {
+            width: calc(100% - 80px);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+        <span id="srvname" class="menuitem"></span>
+        <input type="checkbox" id="autoscroll" checked>
+        <label for="autoscroll">Auto scroll</label>
+    </div>
+
+    <div id="log">
+
+    </div>
+
+    <div id="input">
+        <form style="width: 100%;" onsubmit="submitTerm(); return false;" id="termSubmit">
+            <input type="hidden" name="name" id="termName">
+            <input class="form-control me-2" type="text" placeholder="Command" aria-label="Command Input" name="cmd"
+                id="termCmd">
+            <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const srvname = location.search.substring(1);
+        document.getElementById('termName').value = srvname;
+        document.getElementById('srvname').innerText = srvname;
+
+        const log = document.getElementById('log');
+
+        const autoscroll = document.getElementById('autoscroll');
+
+        function logUpdate() {
+            fetch(`/api/log.php?name=${srvname}&last=1000`, {
+            }).then(res => res.json())
+                .then(c => {
+                    if (c['error']) {
+                        genAlert("Error: " + c['error'], 'danger');
+                        return;
+                    }
+                    log.innerText = c['log'];
+
+                    if (autoscroll.checked) {
+                        setTimeout(function () {
+                            window.scroll(0, document.documentElement.scrollHeight);
+                        }, 100)
+                    }
+                });
+        }
+
+        const termSubmit = document.getElementById('termSubmit');
+        const termCmd = document.getElementById('termCmd');
+
+        function submitTerm() {
+            fetch(`/api/sendcmd.php`, {
+                method: 'POST',
+                body: new FormData(termSubmit)
+            }).then(res => res.json())
+                .then(c => {
+                    if (c['error']) {
+                        genAlert("Error: " + c['error'], 'danger');
+                        return;
+                    }
+                });
+            termCmd.value = '';
+            termCmd.focus();
+        }
+
+        setInterval(logUpdate, 1000);
+        logUpdate();
+    </script>
+</body>
+
+</html>

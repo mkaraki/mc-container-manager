@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Container | Minecraft Container Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+</head>
+
+<body class="m-3">
+    <h1>Delete Server</h1>
+    <h3>Server: <span id="svname"></span></h3>
+    <p>
+        All configuration data will lost when you delete server.
+        <br />
+        Your server data will remain after deletion. You can browse from <a href="filemanager.php">server browser</a>.
+    </p>
+    <form onsubmit="submitDeletion(); return false;" id="deleteForm">
+        <input type="hidden" name="name" id="formName">
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="confirmCheck1" required>
+            <label class="form-check-label" for="confirmCheck1">I know what I doing.</label>
+        </div>
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+        crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script>
+        const srvname = location.search.substring(1);
+
+        document.getElementById('svname').innerText = srvname;
+        document.getElementById('formName').value = srvname;
+
+        function submitDeletion() {
+            fetch(`/api/delete.php`, {
+                method: 'POST',
+                body: new FormData(document.getElementById('deleteForm'))
+            }).then(res => res.json())
+                .then(c => {
+                    if (c['error']) {
+                        console.log(c);
+                        genAlert("Error: " + c['error'], 'danger');
+                        return;
+                    }
+                    setTimeout(function () {
+                        location.href = 'containers.html';
+                    }, 300);
+                });
+        }
+
+    </script>
+</body>
+
+</html>

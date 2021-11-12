@@ -1,0 +1,5 @@
+FROM tinyfilemanager/tinyfilemanager
+
+VOLUME /mc
+
+COPY tinyfilemanager_config.php config.php
