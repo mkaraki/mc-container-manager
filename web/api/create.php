@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../_config.php';
+header("Content-Type: application/json; charset=utf-8");
 
 /*
 This API will create container:

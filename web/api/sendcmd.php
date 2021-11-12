@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../_config.php';
 require_once __DIR__ . '/../_dockercontroller.php';
+header("Content-Type: application/json; charset=utf-8");
 
 if (!isset($_POST['name']) || !isset($_POST['cmd']))
     die('{"error":"Wrong params."}');
