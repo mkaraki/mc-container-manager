@@ -1,4 +1,4 @@
-FROM tinyfilemanager/tinyfilemanager
+FROM tinyfilemanager/tinyfilemanager:master
 
 VOLUME /mc
 
