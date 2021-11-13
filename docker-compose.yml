@@ -9,7 +9,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker:ro
       - /home/mc:/mc
-      #- ./config.php:/var/www/html/_config.php:ro
+#      - type: bind
+#        source: ./config.php
+#        target: /var/www/html/_config.php:ro
     ports:
       - 25500:80
 
