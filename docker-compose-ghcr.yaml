@@ -12,7 +12,7 @@ services:
       - 25500:80
 
   filemanager:
-    image: mc-container-manager-tinyfilemanager:master
+    image: ghcr.io/mkaraki/mc-container-manager-tinyfilemanager:master
     volumes:
       - /home/mc:/mc
     user: 0:0
