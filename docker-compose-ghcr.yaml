@@ -2,7 +2,7 @@ version: '3'
 
 services:
   web:
-    image: ghcr.io/mkaraki/mc-container-manager:master
+    image: ghcr.io/mkaraki/mc-container-manager:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker:ro
@@ -14,7 +14,7 @@ services:
       - 25500:80
 
   filemanager:
-    image: ghcr.io/mkaraki/mc-container-manager-tinyfilemanager:master
+    image: ghcr.io/mkaraki/mc-container-manager-tinyfilemanager:latest
     volumes:
       - /home/mc:/mc
     user: 0:0
