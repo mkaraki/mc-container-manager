@@ -8,6 +8,6 @@ RUN apt-get update \
 RUN echo "www-data ALL=NOPASSWD: /usr/bin/docker" >> /etc/sudoers
 
 COPY web /var/www/html
-COPY _config.sample.php /var/www/html/
+COPY _config.sample.php /var/www/html/_config.php
 
 VOLUME /mc
