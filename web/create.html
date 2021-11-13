@@ -220,7 +220,10 @@
             <label class="form-check-label" for="eula">I read Minecraft EULA and agree.</label>
         </div>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+            <span class="spinner-grow spinner-grow-sm d-none" role="status" aria-hidden="true" id="btnLoad"></span>
+            Create
+        </button>
     </form>
 
     <script src="script.js"></script>
@@ -238,11 +241,15 @@
         }
 
         function submitCreate() {
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('btnLoad').classList.toggle('d-none', false);
             fetch(`/api/create.php`, {
                 method: 'POST',
                 body: new FormData(document.getElementById('createForm'))
             }).then(res => res.json())
                 .then(c => {
+                    document.getElementById('submitBtn').disabled = false;
+                    document.getElementById('btnLoad').classList.toggle('d-none', true);
                     if (c['error']) {
                         console.log(c);
                         genAlert("Error: " + c['error'], 'danger');
